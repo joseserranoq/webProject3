@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <title>Document</title>
 </head>
-<body class="container">
-    <h1 class="mt-2">Socket client</h1>
-
-    <p>
-        Server Status:
-        <span id="lblOnline" class="text-success">Online</span>
-        <span id="lblOffline" class="text-danger">Offline</span>
-    </p>
-
-    <div class="row">
-        <div class="col">
-            <input type="text" id="txtMessage" class="form-control">
-        </div>
-        <div class="col">
-            <button id="btnSend" class="btn btn-primary">Send</button>
-        </div>
+<body>
+    <div class="container">
+        Prueba para enviar un innerHTML a un archivo json
+        <button onclick="envia()">Manda info</button>
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="../js/socket-form-maker.js"></script>
 </body>
+<script>
+    function envia(){
+        const container = document.querySelector(".container").innerHTML;
+        console.log(container);
+        const parse = {
+            "data": container
+        }
+        const request = new Request("http://localhost:8080/form-maker/api/",{
+            method: "POST",
+            body: JSON.stringify(parse),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        fetch(request)
+            .then(response => response.json())
+            .then(data => console.log(data));
+    }
+</script>
 </html>
