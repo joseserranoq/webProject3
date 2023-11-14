@@ -58,6 +58,7 @@
           <h2>Tablas Editables</h2>
         </div>
       </form>
+      <button @click="generateLink">Generar Enlace</button>
       <button @click="saveForm">Guardar Formulario</button>
 
     </div>
@@ -66,11 +67,11 @@
       <ul>
         <li v-for="(form, index) in savedForms" :key="index">
           {{ form.name }}
-          <button class="button" @click="generateLink">Generar Enlace</button>
+          <!-- <button class="button" @click="generateLink">Generar Enlace</button> -->
         </li>
 
       </ul>
-      <!-- <button @click="printFormsToConsole">Imprimir Formularios en Consola</button> -->
+      <button @click="printFormsToConsole">Imprimir Formularios en Consola</button>
     </div>
   </div>
 </template>
@@ -87,6 +88,7 @@ export default {
         question: "",
         answers: ""
       },
+      generatedlink: "",
       questions: [],
       savedForms: [],
       editingIndex: null,
@@ -120,6 +122,7 @@ export default {
     saveForm() {
       const formToSave = {
         name: this.currentForm,
+        link: this.generateLink,
         questions: [],
       };
       for (const type in this.questionTypes) {
@@ -151,6 +154,7 @@ export default {
       }
     },
     generateLink() {
+      console.log(this.savedForms[0],name)
       const formToSave = {
         name: this.currentForm,
         questions: [],
@@ -175,6 +179,7 @@ export default {
         .then(response => response.text())
         .then(formUrl => {
           console.log('Formulario creado:', formUrl);
+          this.generateLink = formUrl;
         })
         .catch(error => {
           console.error('Error al crear el formulario:', error);
