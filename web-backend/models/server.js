@@ -5,9 +5,7 @@ const { Socket } = require('socket.io');
 //Rutas 
 const indexRoute = require('../router/index');
 const homepageRoute = require('../router/homepageRouter');
-//const formMakerRoute = require('../router/form-makerRouter');
 const formMakerRoute = require('../router/form-makerRouter');
-const { socketController } = require('../controllers/sockets/socketController-formMaker');
 
 class Server {
 
@@ -20,7 +18,7 @@ class Server {
         this.paths = {
             index: '/',
             homepage: '/homepage/',
-            //formMaker: '/form-maker/'
+            formMaker: '/form-maker/'
         }
 
         // Middlewares
@@ -29,8 +27,6 @@ class Server {
         // Rutas de mi aplicación
         this.routes();
 
-        // Sockets
-        this.sockets();
     }
 
     middlewares() {
@@ -38,7 +34,8 @@ class Server {
         // CORS
         this.app.use( cors() );
 
-        //this.app.use( express.json() );
+        this.app.use( express.json() );
+
 
         // Directorio Público
         this.app.use( express.static('public') );
@@ -47,11 +44,8 @@ class Server {
     // Ingresa las rutas creadas en el constructor
     routes() { 
         this.app.use( this.paths.homepage, homepageRoute );
-        //this.app.use( this.paths.formMaker, formMakerRoute ); va como socket
-    }
-
-    sockets(){
-        this.io.on('connection', socketController);
+        this.app.use( this.paths.formMaker, formMakerRoute );
+        this.app.use( this.paths.index, indexRoute );
     }
 
     listen() {

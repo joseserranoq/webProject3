@@ -1,10 +1,12 @@
-// const { Router } = require('express');
-// const router = Router();
+const { Router } = require('express');
+const router = Router();
 
 
-// const { formMakerController } = require('../controllers/sockets/socketController-formMaker');
+const { formMakerGet,formMakerPost } = require('../controllers/form-maker');
 
-// //form-maker routes
-// router.get('/',formMakerController);
 
-// module.exports = router;
+
+//form-maker routes
+router.get('/api',formMakerGet);
+router.post('/api',formMakerPost);
+module.exports = router;

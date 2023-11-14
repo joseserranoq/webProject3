@@ -24,6 +24,19 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/MyForms',
+    name: 'MyForms',
+    component: () => import('../views/MyFormsView.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },  
+  {
+    path: '/MyFormsResponses',
+    name: 'MyFormsResponses',
+    component: () => import('../views/MyFormsResponsesView.vue'),
   }
 ]
 

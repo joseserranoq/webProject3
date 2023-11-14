@@ -4,6 +4,6 @@ const router = Router();
 const { homepageGet } = require('../controllers/homepage');
 
 //homepage routes
-router.get('/algo',homepageGet);
+router.get('/api',homepageGet);
 
 module.exports = router;
