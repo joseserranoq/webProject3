@@ -8,7 +8,7 @@
                     <input type="password" placeholder="Password" v-model="register_form.password" />
                     <input type="submit" value="Register" />
                 </form>
-                <button @click="formsVisible">Login</button>
+                <button class="button-login" @click="formsVisible">Login</button>
             </div>
             <div id="login" v-if="!isVisible">
                 <form class="login" @submit.prevent="login">
@@ -17,7 +17,7 @@
                     <input type="password" placeholder="Password" v-model="login_form.password" />
                     <input type="submit" value="Login" />
                 </form>
-                <button @click="formsVisible">Register</button>
+                <button class="button-register" @click="formsVisible">Register</button>
             </div>
         </section>
     </main>
@@ -94,19 +94,22 @@ export default {
 </script>
 
 <style>
+* {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif ;
+}
 .forms {
     display: flex;
     min-height: 100vh;
 }
 
 #register {
+    width: 100%;
     background-image: linear-gradient(to bottom right,
-            rgb(66, 108, 245) 0%,
-            rgb(33, 28, 189) 100%);
-    margin-bottom: 200px;
+            rgb(48, 38, 121) 0%,
+            rgb(13, 11, 61) 100%);
 }
 #login {
-    margin-bottom: 200px;
+    width: 100%;
 }
 form {
     flex: 1 1 0%;
@@ -121,6 +124,17 @@ h2 {
     font-size: 2rem;
     text-transform: uppercase;
     margin-bottom: 2rem;
+}
+
+.button-login,.button-register {
+    font-size: small;
+    text-transform: uppercase;
+    padding: 5px;
+    border-radius: 10px;
+}
+.button-register {
+    background-color: rgb(48, 38, 121);
+    color: white;
 }
 input {
     appearance: none;
@@ -161,7 +175,7 @@ form.login input:not([type="submit"]) {
 }
 
 form.login input[type="submit"] {
-    background-color: rgb(66, 108, 245);
+    background-color: rgb(48, 38, 121);
     color: #FFF;
     font-weight: 700;
     padding: 1rem 2rem;
@@ -172,7 +186,7 @@ form.login input[type="submit"] {
 
 form.register input[type="submit"] {
     background-color: #FFF;
-    color: rgb(66, 108, 245);
+    color: rgb(48, 38, 121);
     font-weight: 700;
     padding: 1rem 2rem;
     border-radius: 0.5rem;

@@ -12,7 +12,7 @@
       <select id="list" v-model="selectedItem">
         <option v-for="item in list" :key="item">{{ item }}</option>
       </select>
-      <p>Has seleccionado: {{ selectedItem }}</p>
+      <!-- <p>Has seleccionado: {{ selectedItem }}</p> -->
       <!-- Cadena de texto/ numeros -->
       <form v-if="selectedItem == 'Cadena Texto'" @submit.prevent="addOrUpdateQuestion">
         <label>Pregunta:</label>
@@ -76,7 +76,7 @@
       </div>
     </form>
 
-      <button @click="generateLink">Generar Enlace</button>
+      <button @click="generateLink" :disabled="isQuestion">Generar Enlace</button>
       <button @click="saveForm">Guardar Formulario</button>
 
     </div>
@@ -108,6 +108,7 @@ export default {
       },
       generatedlink: "",
       questions: [],
+      isQuestion: false,
       savedForms: [],
       editingIndex: null,
       isCreatingForm: false,
@@ -131,6 +132,7 @@ export default {
       this.isCreatingForm = true;
     },
     addOrUpdateTable() {
+      this.isQuestion = true;
       const tableData = {
         question: this.newTable.question,
         columns: this.newTable.columns.split(',').map(column => column.trim()),
@@ -141,6 +143,7 @@ export default {
       this.newTable.columns = "";
     },
     addOrUpdateQuestion() {
+      this.isQuestion = true;
       const questionData = { question: this.newQuestion.question };
 
       if (this.editingIndex === null) {
@@ -215,37 +218,13 @@ export default {
         .then(formUrl => {
           console.log('Formulario creado:', formUrl);
           this.generateLink = formUrl;
-
-          //fetch para ingresar a la base de datos el url a la base de datos
-          const url = 'http://localhost:8080/form-maker/api/'
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: localStorage.emailVar,
-              formId: this.currentForm,
-              url: formUrl,
-              register_url: 'aqui va el url de registro'
-
-            }),
-          })
-            .then(response => response.json())
-            .then(data => {
-              console.log('Success:', data);
-            })
-            .catch(error => {
-              console.error('Error:', error);
-            }
-
-          )
         })
         .catch(error => {
           console.error('Error al crear el formulario:', error);
         });
     },
     addOrUpdateCombobox() {
+      this.isQuestion = true;
       const questionData = {
         question: this.newQuestion.question,
         answers: this.newQuestion.answers.split(',').map(answer => answer.trim()),
@@ -265,7 +244,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .forms {
   display: flex;
@@ -286,6 +264,8 @@ h2 {
 h3 {
   color: white;
   background-color: rgb(48, 38, 121);
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .question-container {
@@ -323,7 +303,7 @@ label {
   margin-bottom: 5px;
 }
 
-.button {
+button {
   background-color: rgb(48, 38, 121);
   color: #fff;
   font-weight: 700;
@@ -332,10 +312,16 @@ label {
   border-radius: 0.5rem;
   cursor: pointer;
   text-transform: uppercase;
+  margin-left: 5px;
+}
+button:hover{
+  background-color: rgb(18, 13, 51);
+  color: white;
+
 }
 
-button:hover {
-  background-color: #3457b4;
+.button:hover {
+  background-color: #0e0732;
 }
 
 form.login input[type="submit"] {

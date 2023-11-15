@@ -4,7 +4,7 @@
     <router-link to="/about">About</router-link> |
     <router-link to="/MyForms">MyForms</router-link>
     <!-- <button @click="$store.dispatch('logout')">Logout</button> -->
-    <button @click="logout">Logout</button>
+    <button class="logout" @click="logout">Logout</button>
 
   </div>
   <router-view/>
@@ -37,12 +37,29 @@ export default {
 }
 </script>
 
+
 <style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
+.logout {
+  background-color: rgb(121, 38, 53);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.1rem 0.3rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-left: 5px;
+}
+.logout:hover{
+  background-color: rgb(39, 11, 16);
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -61,6 +78,6 @@ export default {
 }
 
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: rgb(41, 27, 144);
 }
 </style>
