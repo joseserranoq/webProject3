@@ -4,7 +4,7 @@ const { Socket } = require('socket.io');
 
 //Rutas 
 const indexRoute = require('../router/index');
-const homepageRoute = require('../router/homepageRouter');
+const loginRoute = require('../router/loginRouter');
 const formMakerRoute = require('../router/form-makerRouter');
 
 class Server {
@@ -17,7 +17,7 @@ class Server {
         //const io = new Server(this.server);  
         this.paths = {
             index: '/',
-            homepage: '/homepage/',
+            login: '/login/',
             formMaker: '/form-maker/'
         }
 
@@ -43,7 +43,7 @@ class Server {
     }
     // Ingresa las rutas creadas en el constructor
     routes() { 
-        this.app.use( this.paths.homepage, homepageRoute );
+        this.app.use( this.paths.login, loginRoute );
         this.app.use( this.paths.formMaker, formMakerRoute );
         this.app.use( this.paths.index, indexRoute );
     }

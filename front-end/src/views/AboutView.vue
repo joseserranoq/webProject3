@@ -180,6 +180,31 @@ export default {
         .then(formUrl => {
           console.log('Formulario creado:', formUrl);
           this.generateLink = formUrl;
+
+          //fetch para ingresar a la base de datos el url a la base de datos
+          const url = 'http://localhost:8080/form-maker/api/'
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: localStorage.emailVar,
+              formId: this.currentForm,
+              url: formUrl,
+              register_url: 'aqui va el url de registro'
+
+            }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Success:', data);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            }
+
+          )
         })
         .catch(error => {
           console.error('Error al crear el formulario:', error);

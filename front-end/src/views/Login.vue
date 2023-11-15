@@ -37,10 +37,43 @@ export default {
 
         const login = () => {
             store.dispatch('login', login_form.value);
+            
+            //             //genera el usuario en data.json, realiza un post a la api
+            // console.log(login_form.value);
+            // const data = {
+            //     email: login_form.value.email,
+            //     password: login_form.value.password,
+            //     //forms: []
+            // }
+            // fetch('http://localhost:8080/login/api', {
+            //     method: 'POST',
+            //     body: JSON.stringify(data),
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     }
+            // })
+            
+            
+            //agrega el email al localStorage para posteriormente ser usado para consultar
+            localStorage.emailVar = login_form.value.email;
         }
 
         const register = () => {
             store.dispatch('register', register_form.value);
+            //genera el usuario en data.json, realiza un post a la api
+            console.log(login_form.value);
+            const data = {
+                email: login_form.value.email,
+                password: login_form.value.password,
+                //forms: []
+            }
+            fetch('http://localhost:8080/login/api', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
         }
 
         const formsVisible = () => {
