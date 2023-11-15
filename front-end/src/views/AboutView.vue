@@ -25,16 +25,16 @@
         </div>
       </form>
       <!-- Seleccio Unica -->
-      <form v-if="selectedItem == 'Valor numerico'">
-        <label>Pregunta:</label>
-        <div class="question-container" v-for="(question, index) in questions" :key="index">
-          <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
-        </div>
-        <div class="question-container">
-          <input v-model="newQuestion.question" required />
-          <button type="submit">Agregar Pregunta</button>
-        </div>
-      </form>
+      <form v-if="selectedItem == 'Valor numerico'" @submit.prevent="addOrUpdateQuestion">
+      <label>Pregunta:</label>
+      <div class="question-container" v-for="(question, index) in questions" :key="index">
+        <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
+      </div>
+      <div class="question-container">
+        <input v-model="newQuestion.question" required />
+        <button type="submit">Agregar Pregunta</button>
+      </div>
+    </form>
       <form v-if="selectedItem === 'Comboboxes'" @submit.prevent="addOrUpdateCombobox">
         <div>
           <h2>Comboboxes</h2>
@@ -53,11 +53,29 @@
           <button type="submit">Agregar Pregunta</button>
         </div>
       </form>
-      <form v-if="selectedItem == 'Tablas Editables'">
+      <form v-if="selectedItem == 'Tablas Editables'" @submit.prevent="addOrUpdateTable">
         <div>
           <h2>Tablas Editables</h2>
+          <label>Nombre de la Tabla:</label>
+          <input v-model="newTable.question" required />
         </div>
+        <div>
+          <label>Columnas (separadas por comas):</label>
+          <input v-model="newTable.columns" required />
+        </div>
+        <button type="submit">Agregar Tabla</button>
       </form>
+      <form v-if="selectedItem == 'Registro Documentos'" @submit.prevent="addOrUpdateQuestion">
+      <label>Pregunta:</label>
+      <div class="question-container" v-for="(question, index) in questions" :key="index">
+        <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
+      </div>
+      <div class="question-container">
+        <input v-model="newQuestion.question" required />
+        <button type="submit">Agregar Pregunta</button>
+      </div>
+    </form>
+
       <button @click="generateLink">Generar Enlace</button>
       <button @click="saveForm">Guardar Formulario</button>
 
@@ -82,7 +100,7 @@ export default {
       formName: "",
       currentForm: null,
       mostrarMenu: false,
-      list: ['Cadena Texto', 'Comboboxes', 'Registro Documentos', 'Tablas Editables'],
+      list: ['Cadena Texto', 'Comboboxes', 'Valor numerico', 'Registro Documentos', 'Tablas Editables'],
       selectedItem: '',
       newQuestion: {
         question: "",
@@ -98,6 +116,11 @@ export default {
         'Valor numerico': [],
         'Comboboxes': [],
         'Tablas Editables': [],
+        'Registro Documentos': [],
+      },
+      newTable: {
+        question: "",
+        columns: "",
       },
     };
   },
@@ -106,6 +129,16 @@ export default {
       this.currentForm = this.formName;
       this.formName = "";
       this.isCreatingForm = true;
+    },
+    addOrUpdateTable() {
+      const tableData = {
+        question: this.newTable.question,
+        columns: this.newTable.columns.split(',').map(column => column.trim()),
+      };
+
+      this.questionTypes[this.selectedItem].push(tableData);
+      this.newTable.question = "";
+      this.newTable.columns = "";
     },
     addOrUpdateQuestion() {
       const questionData = { question: this.newQuestion.question };
@@ -131,6 +164,7 @@ export default {
             type: type,
             question: question.question,
             answers: question.answers || [],
+            columns: question.columns || []
           }))
         );
       }
@@ -141,6 +175,7 @@ export default {
         'Valor numerico': [],
         'Comboboxes': [],
         'Tablas Editables': [],
+        'Registro Documentos': [],
       };
       this.isCreatingForm = false;
       this.selectedItem = '';
@@ -154,7 +189,6 @@ export default {
       }
     },
     generateLink() {
-      console.log(this.savedForms[0],name)
       const formToSave = {
         name: this.currentForm,
         questions: [],
@@ -166,10 +200,11 @@ export default {
             type: type,
             question: question.question,
             answers: question.answers || [],
+            columns: question.columns || []
           }))
         );
       }
-      fetch('https://script.google.com/macros/s/AKfycbxB1DwCwGP3M_brntKBZURQdmQRNpxLC8j4Auass-soDMHBaXqlxedi7HdlA014G4m1/exec', {
+      fetch('https://script.google.com/macros/s/AKfycbwh8TpeASGbVmpNa7gpWrxPeiMozUNTKiJCywwyhugXZV7pXNC6DKFRxXHHlnWBRISz/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -201,6 +236,7 @@ export default {
       this.newQuestion.question = "";
       this.newQuestion.answers = "";
     },
+
   }
 };
 </script>
