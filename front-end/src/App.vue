@@ -3,7 +3,9 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link> |
     <router-link to="/MyForms">MyForms</router-link>
-    <button @click="$store.dispatch('logout')">Logout</button>
+    <!-- <button @click="$store.dispatch('logout')">Logout</button> -->
+    <button @click="logout">Logout</button>
+
   </div>
   <router-view/>
 </template>
@@ -19,7 +21,19 @@ export default {
     onBeforeMount(() => {
       store.dispatch('fetchUser')
     })
+    
+    const logout = ()=> {
+      localStorage.removeItem('emailVar')
+      store.dispatch('logout')
+    }
+
+    return {
+      logout
+    }
+
   }
+
+
 }
 </script>
 

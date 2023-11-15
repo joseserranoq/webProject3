@@ -84,6 +84,7 @@ export default createStore({
 
       commit('CLEAR_USER')
 
+
       router.push('/login')
     },
 
@@ -99,7 +100,6 @@ export default createStore({
           }
         }
       })
-    }
-    
+    },
   }
 })
