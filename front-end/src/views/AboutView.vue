@@ -12,7 +12,7 @@
       <select id="list" v-model="selectedItem">
         <option v-for="item in list" :key="item">{{ item }}</option>
       </select>
-      <!-- <p>Has seleccionado: {{ selectedItem }}</p> -->
+      <p>Has seleccionado: {{ selectedItem }}</p>
       <!-- Cadena de texto/ numeros -->
       <form v-if="selectedItem == 'Cadena Texto'" @submit.prevent="addOrUpdateQuestion">
         <label>Pregunta:</label>
@@ -26,15 +26,15 @@
       </form>
       <!-- Seleccio Unica -->
       <form v-if="selectedItem == 'Valor numerico'" @submit.prevent="addOrUpdateQuestion">
-      <label>Pregunta:</label>
-      <div class="question-container" v-for="(question, index) in questions" :key="index">
-        <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
-      </div>
-      <div class="question-container">
-        <input v-model="newQuestion.question" required />
-        <button type="submit">Agregar Pregunta</button>
-      </div>
-    </form>
+        <label>Pregunta:</label>
+        <div class="question-container" v-for="(question, index) in questions" :key="index">
+          <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
+        </div>
+        <div class="question-container">
+          <input v-model="newQuestion.question" required />
+          <button type="submit">Agregar Pregunta</button>
+        </div>
+      </form>
       <form v-if="selectedItem === 'Comboboxes'" @submit.prevent="addOrUpdateCombobox">
         <div>
           <h2>Comboboxes</h2>
@@ -66,18 +66,19 @@
         <button type="submit">Agregar Tabla</button>
       </form>
       <form v-if="selectedItem == 'Registro Documentos'" @submit.prevent="addOrUpdateQuestion">
-      <label>Pregunta:</label>
-      <div class="question-container" v-for="(question, index) in questions" :key="index">
-        <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
-      </div>
-      <div class="question-container">
-        <input v-model="newQuestion.question" required />
-        <button type="submit">Agregar Pregunta</button>
-      </div>
-    </form>
+        <label>Pregunta:</label>
+        <div class="question-container" v-for="(question, index) in questions" :key="index">
+          <input v-model="question.question" @blur="finishEditing(index)" @keyup.enter="finishEditing(index)" />
+        </div>
+        <div class="question-container">
+          <input v-model="newQuestion.question" required />
+          <button type="submit">Agregar Pregunta</button>
+        </div>
+      </form>
 
-      <button @click="generateLink" :disabled="isQuestion">Generar Enlace</button>
+      <button @click="generateLink">Generar Enlace</button>
       <button @click="saveForm">Guardar Formulario</button>
+      <button @click="getResponses">Ver respuestas</button>
 
     </div>
     <div v-if="savedForms.length > 0 && !isCreatingForm">
@@ -107,8 +108,8 @@ export default {
         answers: ""
       },
       generatedlink: "",
+      formId: "",
       questions: [],
-      isQuestion: false,
       savedForms: [],
       editingIndex: null,
       isCreatingForm: false,
@@ -132,7 +133,6 @@ export default {
       this.isCreatingForm = true;
     },
     addOrUpdateTable() {
-      this.isQuestion = true;
       const tableData = {
         question: this.newTable.question,
         columns: this.newTable.columns.split(',').map(column => column.trim()),
@@ -143,7 +143,6 @@ export default {
       this.newTable.columns = "";
     },
     addOrUpdateQuestion() {
-      this.isQuestion = true;
       const questionData = { question: this.newQuestion.question };
 
       if (this.editingIndex === null) {
@@ -191,6 +190,30 @@ export default {
         this.editingIndex = null;
       }
     },
+    getResponses() {
+      this.obtenerRespuestas();
+    },
+    obtenerIdFormularioDesdeURL(url) {
+      // Encuentra la posición del ID en la URL
+      var inicioId = url.indexOf("/forms/d/") + 9;
+      var finId = url.indexOf("/edit");
+      var idFormulario = url.substring(inicioId, finId);
+
+      return idFormulario;
+    },
+    obtenerUrl(url) {
+      // Encuentra la posición del ID en la URL
+      var inicioId = url.indexOf("blicado: ") + 9;
+      var idFormulario = url.substring(inicioId);
+
+      return idFormulario;
+    },
+    obtenerUrl2(url) {
+      var inicioId = url.indexOf("ditable: ") + 9;
+      var finId = url.indexOf("Enlace del formulario");
+      var idFormulario = url.substring(inicioId, finId);  
+      return idFormulario;
+    },
     generateLink() {
       const formToSave = {
         name: this.currentForm,
@@ -207,7 +230,7 @@ export default {
           }))
         );
       }
-      fetch('https://script.google.com/macros/s/AKfycbwh8TpeASGbVmpNa7gpWrxPeiMozUNTKiJCywwyhugXZV7pXNC6DKFRxXHHlnWBRISz/exec', {
+      fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -215,16 +238,31 @@ export default {
         body: `formName=${encodeURIComponent(this.currentForm)}&questions=${encodeURIComponent(JSON.stringify(formToSave.questions))}`,
       })
         .then(response => response.text())
-        .then(formUrl => {
-          console.log('Formulario creado:', formUrl);
-          this.generateLink = formUrl;
+        .then(data => {
+          console.log('Formulario creado:', data);
+          this.generateLink = this.obtenerUrl(data);
+          this.editableLink = this.obtenerUrl2(data);
+
+          this.formId = this.obtenerIdFormularioDesdeURL(this.editableLink);
+          
         })
         .catch(error => {
           console.error('Error al crear el formulario:', error);
         });
     },
+    obtenerRespuestas() {
+      console.log(this.formId);
+      fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec?formId=' + this.formId)
+        .then(response => response.text())
+        .then(data => {
+          console.log('Respuesta del servidor:', data);
+          // Intenta analizar data como JSON aquí
+        })
+        .catch(error => {
+          console.error('Error al obtener respuestas:', error);
+        });
+    },
     addOrUpdateCombobox() {
-      this.isQuestion = true;
       const questionData = {
         question: this.newQuestion.question,
         answers: this.newQuestion.answers.split(',').map(answer => answer.trim()),
@@ -244,6 +282,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .forms {
   display: flex;
@@ -314,7 +353,8 @@ button {
   text-transform: uppercase;
   margin-left: 5px;
 }
-button:hover{
+
+button:hover {
   background-color: rgb(18, 13, 51);
   color: white;
 
