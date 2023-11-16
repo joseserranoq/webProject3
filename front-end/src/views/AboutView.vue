@@ -76,7 +76,6 @@
         </div>
       </form>
 
-      <button @click="generateLink">Generar Enlace</button>
       <button @click="saveForm">Guardar Formulario</button>
       <button @click="getResponses">Ver respuestas</button>
 
@@ -132,6 +131,17 @@ export default {
       this.formName = "";
       this.isCreatingForm = true;
     },
+    getResponses() {
+      this.obtenerRespuestas();
+    },
+    obtenerIdFormularioDesdeURL(url) {
+      // Encuentra la posición del ID en la URL
+      var inicioId = url.indexOf("/forms/d/") + 9;
+      var finId = url.indexOf("/edit");
+      var idFormulario = url.substring(inicioId, finId);
+      return idFormulario;
+    },
+
     addOrUpdateTable() {
       const tableData = {
         question: this.newTable.question,
@@ -154,34 +164,7 @@ export default {
 
       this.newQuestion.question = "";
     },
-    saveForm() {
-      const formToSave = {
-        name: this.currentForm,
-        link: this.generateLink,
-        questions: [],
-      };
-      for (const type in this.questionTypes) {
-        formToSave.questions = formToSave.questions.concat(
-          this.questionTypes[type].map(question => ({
-            type: type,
-            question: question.question,
-            answers: question.answers || [],
-            columns: question.columns || []
-          }))
-        );
-      }
-      this.savedForms.push(formToSave);
-      this.currentForm = null;
-      this.questionTypes = {
-        'Cadena Texto': [],
-        'Valor numerico': [],
-        'Comboboxes': [],
-        'Tablas Editables': [],
-        'Registro Documentos': [],
-      };
-      this.isCreatingForm = false;
-      this.selectedItem = '';
-    },
+
     printFormsToConsole() {
       console.log("Formularios Guardados:", this.savedForms);
     },
@@ -189,17 +172,6 @@ export default {
       if (index !== undefined) {
         this.editingIndex = null;
       }
-    },
-    getResponses() {
-      this.obtenerRespuestas();
-    },
-    obtenerIdFormularioDesdeURL(url) {
-      // Encuentra la posición del ID en la URL
-      var inicioId = url.indexOf("/forms/d/") + 9;
-      var finId = url.indexOf("/edit");
-      var idFormulario = url.substring(inicioId, finId);
-
-      return idFormulario;
     },
     obtenerUrl(url) {
       // Encuentra la posición del ID en la URL
@@ -215,40 +187,81 @@ export default {
       return idFormulario;
     },
     generateLink() {
-      const formToSave = {
-        name: this.currentForm,
-        questions: [],
-      };
+  return new Promise((resolve, reject) => {
+    const formToSave = {
+      name: this.currentForm,
+      questions: [],
+    };
 
-      for (const type in this.questionTypes) {
-        formToSave.questions = formToSave.questions.concat(
-          this.questionTypes[type].map(question => ({
-            type: type,
-            question: question.question,
-            answers: question.answers || [],
-            columns: question.columns || []
-          }))
-        );
-      }
-      fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec', {
+    for (const type in this.questionTypes) {
+      formToSave.questions = formToSave.questions.concat(
+        this.questionTypes[type].map(question => ({
+          type: type,
+          question: question.question,
+          answers: question.answers || [],
+        }))
+      );
+    }
+
+    fetch('https://script.google.com/macros/s/AKfycbxB1DwCwGP3M_brntKBZURQdmQRNpxLC8j4Auass-soDMHBaXqlxedi7HdlA014G4m1/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `formName=${encodeURIComponent(this.currentForm)}&questions=${encodeURIComponent(JSON.stringify(formToSave.questions))}`,
+    })
+      .then(response => response.text())
+      .then(formUrl => {
+        console.log('Formulario creado:', formUrl);
+        this.generatedlink = formUrl;
+        this.sendFormToServer();
+        resolve(); // Resuelve la promesa aquí
+      })
+      .catch(error => {
+        console.error('Error al crear el formulario:', error);
+        reject(error); // Rechaza la promesa en caso de error
+      });
+      });
+    },
+
+    sendFormToServer() {
+      const apiUrl = 'http://localhost:8081/form-maker/api/';
+      fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: `formName=${encodeURIComponent(this.currentForm)}&questions=${encodeURIComponent(JSON.stringify(formToSave.questions))}`,
+        body: JSON.stringify({
+          email: localStorage.getItem('emailVar'),
+          formId: this.currentForm,
+          url: this.generatedlink, 
+          register_url: 'aquí va el url de registro'
+        }),
       })
-        .then(response => response.text())
-        .then(data => {
-          console.log('Formulario creado:', data);
-          this.generateLink = this.obtenerUrl(data);
-          this.editableLink = this.obtenerUrl2(data);
-
-          this.formId = this.obtenerIdFormularioDesdeURL(this.editableLink);
-          
-        })
-        .catch(error => {
-          console.error('Error al crear el formulario:', error);
-        });
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        console.log('Formulario creado:', data);
+        this.generateLink = this.obtenerUrl(data);
+        this.editableLink = this.obtenerUrl2(data);
+        this.formId = this.obtenerIdFormularioDesdeURL(this.editableLink);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    },
+    saveForm() {
+      alert("Guardando"); 
+      this.generateLink().then(() => {
+      this.currentForm = null;
+      this.isCreatingForm = false;
+      this.newQuestion = { question: "", answers: "" };
+      this.newTable = { question: "", columns: "" };
+      alert("Formulario guardado"); 
+      }).catch(error => {
+        console.error('Error al crear el formulario:', error);
+        alert("Error al guardar el formulario");
+      });
     },
     obtenerRespuestas() {
       console.log(this.formId);
@@ -256,7 +269,6 @@ export default {
         .then(response => response.text())
         .then(data => {
           console.log('Respuesta del servidor:', data);
-          // Intenta analizar data como JSON aquí
         })
         .catch(error => {
           console.error('Error al obtener respuestas:', error);

@@ -1,35 +1,60 @@
 <template>
-    <div id="body">
-      <h2>MIS FORMULARIOS</h2>
-      <div id="body-formulario" v-if="data.length>0">
-        <div v-for="item in data" :key="item.nombre" class="contenido-formulario">
-          <p>{{ item.nombre }}</p>
-          <button @click="seleccionarFormulario(item.url)" style="font-weight: bold;">Seleccionar</button>
-        </div>
+  <div id="body">
+    <h2>MIS FORMULARIOS</h2>
+    <div v-if="data.length > 0">
+      <div v-for="item in data" :key="item.formId" class="contenido-formulario">
+        <p>{{ item.nombre }}</p>
+        <button @click="mostrarUrl(item.url)" style="font-weight: bold;">Mostrar Url</button>
+        <button @click="seleccionarFormulario(item.url)" style="font-weight: bold;">Responder</button>
       </div>
-      <div id="body-formulario" v-else>
-            <div class="contenido-formulario">
-                <h1>No se han realizado formularios</h1>
-            </div>
-        </div>
     </div>
+    <div v-else>
+      <div class="contenido-formulario">
+        <h1>No se han realizado formularios</h1>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      data: [
-        { nombre: "Preguntas sobre plantas", url: "MyFormsResponses" },
-        { nombre: "Preguntas sobre peces", url: "facebook.com" }
-      ]
+      data: []
     };
   },
+  mounted() {
+    this.cargarFormularios();
+  },
   methods: {
-    seleccionarFormulario(item) {
-        window.location = item
-    }
-  } 
+    cargarFormularios() {
+  axios.get('http://localhost:8081/form-maker/api/')
+    .then(response => {
+      const todosLosFormularios = [];
+      response.data.msg.forEach(usuario => {
+        usuario.forms.forEach(formulario => {
+          todosLosFormularios.push({
+            nombre: formulario.formId, // Asegúrate de que 'nombre' exista en tu estructura de datos
+            url: formulario.url
+          });
+        });
+      });
+      this.data = todosLosFormularios;
+    })
+    .catch(error => {
+      console.error('Error al cargar los formularios:', error);
+    });
+}
+,
+  seleccionarFormulario(url) {
+    window.open(url, '_blank');
+  },
+  mostrarUrl(url){
+    alert(url)
+  }
+  }
 };
 </script>
 
@@ -64,6 +89,10 @@ export default {
     flex: 1;
     }
 
+    .contenido-formulario h1{
+      margin-left: auto;
+      margin-right: auto;
+    }
     .contenido-formulario button {
     padding: 10px 20px; 
     border: none;
@@ -71,6 +100,8 @@ export default {
     color: white; 
     border-radius: 5px; 
     cursor: pointer; 
+    margin-right: 20px;
+    margin-left: 10px;
     }
 
     /* Ajustes responsivos para pantallas más pequeñas */

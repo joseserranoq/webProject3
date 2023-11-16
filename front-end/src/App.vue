@@ -1,8 +1,8 @@
 <template>
   <div id="nav" v-if="$store.state.user">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link> |
-    <router-link to="/MyForms">MyForms</router-link>
+    <router-link to="/about">Crear Formulario</router-link> |
+    <router-link to="/MyForms">Mis Formularios</router-link>
     <!-- <button @click="$store.dispatch('logout')">Logout</button> -->
     <button class="logout" @click="logout">Logout</button>
 

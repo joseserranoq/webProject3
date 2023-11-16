@@ -11,7 +11,7 @@ class Server {
 
     constructor() {
         this.app  = express();
-        this.port = process.env.PORT;
+        this.port = 8081;
         this.server = require('http').createServer( this.app );
         this.io = require('socket.io')(this.server)
         //const io = new Server(this.server);  
@@ -50,7 +50,7 @@ class Server {
 
     listen() {
         this.server.listen( this.port, () => {
-            console.log('Servidor corriendo en puerto', this.port );
+            console.log(`Servidor corriendo en puerto http://localhost:${this.port}`);
         });
     }
 
