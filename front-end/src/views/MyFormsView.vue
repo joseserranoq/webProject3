@@ -4,6 +4,7 @@
     <div v-if="data.length > 0">
       <div v-for="item in data" :key="item.formId" class="contenido-formulario">
         <p>{{ item.nombre }}</p>
+        <button @click="obtenerRespuestas(item.register_url)">Ver respuestas</button>
         <button @click="mostrarUrl(item.url)" style="font-weight: bold;">Mostrar Url</button>
         <button @click="seleccionarFormulario(item.url)" style="font-weight: bold;">Responder</button>
       </div>
@@ -37,7 +38,8 @@ export default {
         usuario.forms.forEach(formulario => {
           todosLosFormularios.push({
             nombre: formulario.formId, // Asegúrate de que 'nombre' exista en tu estructura de datos
-            url: formulario.url
+            url: formulario.url,
+            register_url: formulario.register_url
           });
         });
       });
@@ -53,7 +55,38 @@ export default {
   },
   mostrarUrl(url){
     alert(url)
-  }
+  },
+  obtenerIdFormularioDesdeURL(url) {
+      // Encuentra la posición del ID en la URL
+      var inicioId = url.indexOf("/forms/d/") + 9;
+      var finId = url.indexOf("/edit");
+      var idFormulario = url.substring(inicioId, finId);
+      return idFormulario;
+    },
+    obtenerUrl(url) {
+      // Encuentra la posición del ID en la URL
+      var inicioId = url.indexOf("blicado: ") + 9;
+      var idFormulario = url.substring(inicioId);
+
+      return idFormulario;
+    },
+    obtenerUrl2(url) {
+      var inicioId = url.indexOf("ditable: ") + 9;
+      var finId = url.indexOf("Enlace del formulario");
+      var idFormulario = url.substring(inicioId, finId);  
+      return idFormulario;
+    },
+  obtenerRespuestas(id) {
+      console.log(id);
+      fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec?formId=' + id)
+        .then(response => response.text())
+        .then(data => {
+          console.log('Respuesta del servidor:', data);
+        })
+        .catch(error => {
+          console.error('Error al obtener respuestas:', error);
+        });
+    },
   }
 };
 </script>

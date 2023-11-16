@@ -77,7 +77,7 @@
       </form>
 
       <button @click="saveForm">Guardar Formulario</button>
-      <button @click="getResponses">Ver respuestas</button>
+      
 
     </div>
     <div v-if="savedForms.length > 0 && !isCreatingForm">
@@ -131,9 +131,7 @@ export default {
       this.formName = "";
       this.isCreatingForm = true;
     },
-    getResponses() {
-      this.obtenerRespuestas();
-    },
+
     obtenerIdFormularioDesdeURL(url) {
       // Encuentra la posición del ID en la URL
       var inicioId = url.indexOf("/forms/d/") + 9;
@@ -187,7 +185,7 @@ export default {
       return idFormulario;
     },
     generateLink() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const formToSave = {
       name: this.currentForm,
       questions: [],
@@ -203,7 +201,7 @@ export default {
       );
     }
 
-    fetch('https://script.google.com/macros/s/AKfycbxB1DwCwGP3M_brntKBZURQdmQRNpxLC8j4Auass-soDMHBaXqlxedi7HdlA014G4m1/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -211,20 +209,26 @@ export default {
       body: `formName=${encodeURIComponent(this.currentForm)}&questions=${encodeURIComponent(JSON.stringify(formToSave.questions))}`,
     })
       .then(response => response.text())
-      .then(formUrl => {
-        console.log('Formulario creado:', formUrl);
-        this.generatedlink = formUrl;
-        this.sendFormToServer();
-        resolve(); // Resuelve la promesa aquí
-      })
-      .catch(error => {
-        console.error('Error al crear el formulario:', error);
-        reject(error); // Rechaza la promesa en caso de error
-      });
+        .then(data => {
+          console.log('Formulario creado:', data);
+          this.generateLink = this.obtenerUrl(data);
+          this.editableLink = this.obtenerUrl2(data);
+
+          this.formId = this.obtenerIdFormularioDesdeURL(this.editableLink);
+          console.log(this.generateLink )
+          console.log(this.editableLink)
+          console.log(this.formId)
+          this.sendFormToServer(this.generateLink,this.formId);
+          resolve(); // Resuelve la promesa aquí
+          
+        })
+        .catch(error => {
+          console.error('Error al crear el formulario:', error);
+        });
       });
     },
 
-    sendFormToServer() {
+    sendFormToServer(generatedlink,formId) {
       const apiUrl = 'http://localhost:8081/form-maker/api/';
       fetch(apiUrl, {
         method: 'POST',
@@ -234,17 +238,14 @@ export default {
         body: JSON.stringify({
           email: localStorage.getItem('emailVar'),
           formId: this.currentForm,
-          url: this.generatedlink, 
-          register_url: 'aquí va el url de registro'
+          url: generatedlink, 
+          register_url: formId
         }),
       })
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
         console.log('Formulario creado:', data);
-        this.generateLink = this.obtenerUrl(data);
-        this.editableLink = this.obtenerUrl2(data);
-        this.formId = this.obtenerIdFormularioDesdeURL(this.editableLink);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -262,17 +263,6 @@ export default {
         console.error('Error al crear el formulario:', error);
         alert("Error al guardar el formulario");
       });
-    },
-    obtenerRespuestas() {
-      console.log(this.formId);
-      fetch('https://script.google.com/macros/s/AKfycbwzLfy0aiQDSjS-_nepm38mLB5AC-jQmElAjyLUJYNdt078HpWu_TBtvAbmAY0Q4J2L/exec?formId=' + this.formId)
-        .then(response => response.text())
-        .then(data => {
-          console.log('Respuesta del servidor:', data);
-        })
-        .catch(error => {
-          console.error('Error al obtener respuestas:', error);
-        });
     },
     addOrUpdateCombobox() {
       const questionData = {
